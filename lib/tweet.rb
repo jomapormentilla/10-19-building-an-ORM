@@ -81,4 +81,10 @@ class Tweet
         author
     end
 
+    def self.create( content:, author: )
+        a = Author.find(author.id)
+        tweet = self.new(content, a)
+        tweet.save
+    end
+
 end

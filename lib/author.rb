@@ -29,42 +29,48 @@ def self.all
  end
 
 
- def save 
-     # add the attr_accessor data to the db
-     if !!self.id  
-          # if it is already saved, update it 
-          sql = <<-SQL 
-             UPDATE authors
-             SET name = ?
-             WHERE id = ?;
-          SQL
-          DB[:conn].execute(sql, self.name, self.id)
-     else
-         # if it is not already saved, add to db
-         sql = <<-SQL 
-             INSERT INTO authors (name) 
-             VALUES (?)
-         SQL
-         DB[:conn].execute(sql, self.name)
-         @id = DB[:conn].last_insert_row_id
-     end
-     self
- end
+    def save 
+        # add the attr_accessor data to the db
+        if !!self.id  
+            # if it is already saved, update it 
+            sql = <<-SQL 
+                UPDATE authors
+                SET name = ?
+                WHERE id = ?;
+            SQL
+            DB[:conn].execute(sql, self.name, self.id)
+        else
+            # if it is not already saved, add to db
+            sql = <<-SQL 
+                INSERT INTO authors (name) 
+                VALUES (?)
+            SQL
+            DB[:conn].execute(sql, self.name)
+            @id = DB[:conn].last_insert_row_id
+        end
+        self
+    end
 
- def self.create_table 
-    # responsible for creating a class
-    sql = <<-SQL
-        CREATE TABLE IF NOT EXISTS authors (
-            id INTEGER PRIMARY KEY,
-            name TEXT
-        )
-    SQL
+    def self.create_table 
+        # responsible for creating a class
+        sql = <<-SQL
+            CREATE TABLE IF NOT EXISTS authors (
+                id INTEGER PRIMARY KEY,
+                name TEXT
+            )
+        SQL
 
-    DB[:conn].execute(sql)
-end
+        DB[:conn].execute(sql)
+    end
 
-# def tweets
+    def tweets_id=(array_of_ids)
+        array_of_ids.each do |id|
+            Tweet.find(id).author = self
+        end
+    end
 
-# end()
+    def tweets
+        Tweet.all.select{ |tweet| tweet.author_id == self.id }
+    end
 
 end
